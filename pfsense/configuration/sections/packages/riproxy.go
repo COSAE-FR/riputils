@@ -8,12 +8,13 @@ type RiproxyBaseWpadConfig struct {
 }
 
 type RiproxyBaseProxyConfig struct {
-	ProxyPort      uint16            `xml:"proxyport"`
-	AllowHighPorts helpers.OnOffBool `xml:"allowhigh"`
-	AllowLowPorts  helpers.OnOffBool `xml:"allowlow"`
-	BlockIps       helpers.OnOffBool `xml:"blockips"`
-	BlockByIdn     helpers.OnOffBool `xml:"blockbyidn"`
-	Block          []string          `xml:"row>host"`
+	ProxyPort          uint16            `xml:"proxyport"`
+	AllowHighPorts     helpers.OnOffBool `xml:"allowhigh"`
+	AllowLowPorts      helpers.OnOffBool `xml:"allowlow"`
+	BlockIps           helpers.OnOffBool `xml:"blockips"`
+	BlockLocalServices helpers.OnOffBool `xml:"blocklocal"`
+	BlockByIdn         helpers.OnOffBool `xml:"blockbyidn"`
+	Block              []string          `xml:"row>host"`
 }
 
 type RiproxyConfig struct {
