@@ -24,3 +24,34 @@ func GetIPForInterface(interfaceName string) (ipAddress *net.IPNet, err error) {
 	}
 	return ipAddress, errors.New("no IP found")
 }
+
+func GetLocalIPStrings() (ips []string) {
+	foo, err := net.InterfaceAddrs()
+
+	if err == nil {
+		for _, v := range foo {
+			ips = append(ips, v.String())
+		}
+	}
+	return
+}
+
+func GetLocalIPs() (ips []net.IP) {
+	for _, ip := range GetLocalIPStrings() {
+		localIP, _, err := net.ParseCIDR(ip)
+		if err == nil {
+			ips = append(ips, localIP)
+		}
+	}
+	return
+}
+
+func GetLocalNetworks() (nets []net.IPNet) {
+	for _, ip := range GetLocalIPStrings() {
+		_, network, err := net.ParseCIDR(ip)
+		if err == nil {
+			nets = append(nets, *network)
+		}
+	}
+	return
+}
