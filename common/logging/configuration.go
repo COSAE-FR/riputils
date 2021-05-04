@@ -56,6 +56,7 @@ func SetupLog(config Config) (logger *log.Entry) {
 			MaxSize:    maxSize,
 			MaxAge:     maxAge,
 			MaxBackups: maxBackup,
+			Compress:   true,
 		}
 		log.SetOutput(fileLog)
 	} else {
