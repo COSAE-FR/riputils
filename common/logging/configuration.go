@@ -6,12 +6,19 @@ import (
 	"os"
 )
 
+const defaultMaxSize = 5
+const defaultMaxAge = 7
+const defaultMaxBackups = 4
+
 type Config struct {
-	File      string `yaml:"file" json:"file" toml:"file"`
-	Level     string `yaml:"level" json:"level" toml:"level"`
-	App       string `yaml:"-" json:"-" toml:"-"`
-	Component string `yaml:"-" json:"-" toml:"-"`
-	Version   string `yaml:"-" json:"-" toml:"-"`
+	File           string `yaml:"file" json:"file" toml:"file"`
+	Level          string `yaml:"level" json:"level" toml:"level"`
+	FileMaxSize    int
+	FileMaxAge     int
+	FileMaxBackups int
+	App            string `yaml:"-" json:"-" toml:"-"`
+	Component      string `yaml:"-" json:"-" toml:"-"`
+	Version        string `yaml:"-" json:"-" toml:"-"`
 }
 
 func SetupLog(config Config) (logger *log.Entry) {
@@ -31,11 +38,24 @@ func SetupLog(config Config) (logger *log.Entry) {
 	log.SetLevel(logLevel)
 
 	if len(config.File) > 0 {
+		maxSize := defaultMaxSize
+		maxAge := defaultMaxAge
+		maxBackup := defaultMaxBackups
+		if config.FileMaxSize > 0 {
+			maxSize = config.FileMaxSize
+		}
+		if config.FileMaxAge > 0 {
+			maxAge = config.FileMaxAge
+		}
+		if config.FileMaxBackups > 0 {
+			maxBackup = config.FileMaxBackups
+		}
+
 		fileLog := &lumberjack.Logger{
 			Filename:   config.File,
-			MaxSize:    5,
-			MaxAge:     7,
-			MaxBackups: 4,
+			MaxSize:    maxSize,
+			MaxAge:     maxAge,
+			MaxBackups: maxBackup,
 		}
 		log.SetOutput(fileLog)
 	} else {

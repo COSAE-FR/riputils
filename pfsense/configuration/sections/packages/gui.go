@@ -49,7 +49,7 @@ type Gui struct {
 	Name        string       `xml:"name"`
 	Title       string       `xml:"title"`
 	IncludeFile string       `xml:"include_file"`
-	Note string `xml:"note"`
+	Note        string       `xml:"note"`
 	Tabs        []PackageTab `xml:"tabs>tab"`
 
 	// adddeleteeditpagefields
@@ -63,8 +63,8 @@ type Gui struct {
 	ResyncConfigCommand string `xml:"custom_php_resync_config_command"`
 	GlobalFunctions     string `xml:"custom_php_global_functions,cdata"`
 	DeinstallCommand    string `xml:"custom_php_deinstall_command"`
-	AddCommand string `xml:"custom_php_add_command"`
-	DeleteCommand string `xml:"custom_php_delete_command"`
-	BeforeFormCommand string `xml:"custom_php_before_form_command"`
-	AfterFormCommand string `xml:"custom_php_after_form_command"`
+	AddCommand          string `xml:"custom_php_add_command"`
+	DeleteCommand       string `xml:"custom_php_delete_command"`
+	BeforeFormCommand   string `xml:"custom_php_before_form_command"`
+	AfterFormCommand    string `xml:"custom_php_after_form_command"`
 }

@@ -85,9 +85,9 @@ type XMLConfigItem struct {
 }
 
 type BasePackageConfig struct {
-	Details              []Package                    `xml:"package"`
-	Services             []Service                    `xml:"service"`
-	Menus                []Menu                       `xml:"menu"`
+	Details  []Package `xml:"package"`
+	Services []Service `xml:"service"`
+	Menus    []Menu    `xml:"menu"`
 }
 
 type KnownPackagesConfig struct {
