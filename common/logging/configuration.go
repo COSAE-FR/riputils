@@ -6,9 +6,9 @@ import (
 	"os"
 )
 
-const defaultMaxSize = 5
-const defaultMaxAge = 7
-const defaultMaxBackups = 4
+const defaultMaxSize = 10
+const defaultMaxAge = 31
+const defaultMaxBackups = 5
 
 type Config struct {
 	File           string `yaml:"file" json:"file" toml:"file"`
