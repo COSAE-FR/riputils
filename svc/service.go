@@ -5,6 +5,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/hlandau/easyconfig.v1"
 	"gopkg.in/hlandau/service.v2"
+	"path/filepath"
 )
 
 type serviceConfiguration struct {
@@ -22,6 +23,11 @@ type Daemonizer interface {
 type Configurable interface {
 	Daemonizer
 	Configure() error
+}
+
+type Loggable interface {
+	Daemonizer
+	SetupLog(name, version string) *logrus.Entry
 }
 
 type Config struct {
@@ -53,7 +59,9 @@ func WithDefaultConfigurationPath(path string) Option {
 func StartService(name string, configParser Configurer, opts ...Option) {
 	config := &serviceConfiguration{Name: name}
 	for _, opt := range opts {
-		opt(config)
+		if opt != nil {
+			opt(config)
+		}
 	}
 	if len(config.DefaultConfigurationPath) == 0 {
 		config.DefaultConfigurationPath = OSDefaultConfigurationFile(name)
@@ -78,10 +86,15 @@ func StartService(name string, configParser Configurer, opts ...Option) {
 	if len(cfg.Conf) == 0 {
 		cfg.Conf = config.DefaultConfigurationPath
 	}
+	confPath, err := filepath.Abs(cfg.Conf)
+	if err != nil {
+		logger.Fatalf("%v", err)
+	}
+	cfg.Conf = confPath
 	logger.Debugf("Starting %s daemon", config.Name)
 	service.Main(&service.Info{
 		Name:      config.Name,
-		AllowRoot: true,
+		AllowRoot: !config.ForbidRoot,
 		NewFunc: func() (service.Runnable, error) {
 			dmn, err := configParser(logger, cfg)
 			if err != nil {
