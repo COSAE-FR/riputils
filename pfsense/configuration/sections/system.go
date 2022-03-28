@@ -26,6 +26,7 @@ type System struct {
 	Language                      string                     `xml:"language"`
 	Users                         []SystemUser               `xml:"user"`
 	Groups                        []SystemGroup              `xml:"group"`
+	ACB                           ACB                        `xml:"acb"`
 	WebGui                        struct {
 		Protocol           string                     `xml:"protocol"`
 		SslCertref         string                     `xml:"ssl-certref"`
@@ -90,4 +91,11 @@ type SysCtl struct {
 	Name        string `xml:"tunable"`
 	Value       string `xml:"value"`
 	Description string `xml:"descr"`
+}
+
+type ACB struct {
+	Enable   helpers.YesNoBool `xml:"enable"`
+	Hint     string            `xml:"hint"`
+	Server   string            `xml:"server"`
+	Password string            `xml:"encryption_password"`
 }
