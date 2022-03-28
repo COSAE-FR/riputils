@@ -13,12 +13,21 @@ const defaultMaxBackups = 5
 type Config struct {
 	File           string `yaml:"file" json:"file" toml:"file"`
 	Level          string `yaml:"level" json:"level" toml:"level"`
-	FileMaxSize    int
-	FileMaxAge     int
-	FileMaxBackups int
+	FileMaxSize    int    `yaml:"max_size" json:"max_size" toml:"max_size"`
+	FileMaxAge     int    `yaml:"max_age" json:"max_age" toml:"max_age"`
+	FileMaxBackups int    `yaml:"max_backups" json:"max_backups" toml:"max_backups"`
 	App            string `yaml:"-" json:"-" toml:"-"`
 	Component      string `yaml:"-" json:"-" toml:"-"`
 	Version        string `yaml:"-" json:"-" toml:"-"`
+}
+
+func (c *Config) SetupLog(name, version string) *log.Entry {
+	if c == nil {
+		return nil
+	}
+	c.App = name
+	c.Version = version
+	return SetupLog(*c)
 }
 
 func SetupLog(config Config) (logger *log.Entry) {
