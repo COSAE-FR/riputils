@@ -2,6 +2,9 @@ package svc
 
 import (
 	"github.com/COSAE-FR/riputils/common/logging"
+	"github.com/COSAE-FR/riputils/svc/external"
+	"github.com/COSAE-FR/riputils/svc/helpers"
+	"github.com/COSAE-FR/riputils/svc/shared"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/hlandau/easyconfig.v1"
 	"gopkg.in/hlandau/service.v2"
@@ -30,13 +33,14 @@ type Loggable interface {
 	SetupLog(name, version string) *logrus.Entry
 }
 
-type Config struct {
-	Conf string `usage:"configuration file"`
+type SubProcessable interface {
+	Daemonizer
+	GetSubProcess(name, component string) error
 }
 
 type Option func(*serviceConfiguration)
 
-type Configurer func(log *logrus.Entry, cfg Config) (Daemonizer, error)
+type Configurer func(log *logrus.Entry, cfg shared.Config) (Daemonizer, error)
 
 func WithForbidRoot() Option {
 	return func(configuration *serviceConfiguration) {
@@ -56,6 +60,10 @@ func WithDefaultConfigurationPath(path string) Option {
 	}
 }
 
+func WillBePrivileged() bool {
+	return helpers.RunWithPrivileges()
+}
+
 func StartService(name string, configParser Configurer, opts ...Option) {
 	config := &serviceConfiguration{Name: name}
 	for _, opt := range opts {
@@ -73,7 +81,7 @@ func StartService(name string, configParser Configurer, opts ...Option) {
 		Component: "main",
 	})
 
-	cfg := Config{}
+	cfg := shared.Config{}
 
 	configurator := &easyconfig.Configurator{
 		ProgramName: config.Name,
@@ -91,15 +99,26 @@ func StartService(name string, configParser Configurer, opts ...Option) {
 		logger.Fatalf("%v", err)
 	}
 	cfg.Conf = confPath
+	logger.Tracef("Creating daemon %s", config.Name)
+	dmn, err := configParser(logger, cfg)
+	if err != nil {
+		logger.Fatalf("%v", err)
+	}
+	ext := external.GetRegisteredProcess()
+	if ext != nil {
+		if err := ext.Configure(); err != nil {
+			logger.Fatalf("Cannot configure external process: %s", err)
+		}
+		if err := ext.Start(); err != nil {
+			logger.Fatalf("Cannot start external process: %s", err)
+		}
+		return
+	}
 	logger.Debugf("Starting %s daemon", config.Name)
 	service.Main(&service.Info{
 		Name:      config.Name,
 		AllowRoot: !config.ForbidRoot,
 		NewFunc: func() (service.Runnable, error) {
-			dmn, err := configParser(logger, cfg)
-			if err != nil {
-				return dmn, err
-			}
 			cfg, ok := dmn.(Configurable)
 			if ok {
 				return dmn, cfg.Configure()
